@@ -58,17 +58,10 @@ public class ProspectoController {
         return new ResponseEntity<>(prospectoService.save(prospectDomain), HttpStatus.CREATED);
     }
 
-    @PutMapping(path = "/update/{id_prospecto}")
+    @PutMapping(path = "/update/")
     @ApiOperation("Actualiza el estatus del prospecto y agrega las observaciones")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Actualizacion realizada correctamente"),
-            @ApiResponse(code = 404, message = "No se encontró el prospecto seleccionado para actualizar")
-    })
-    public ResponseEntity updateStatus(@PathVariable int id_prospecto, @RequestBody UpdateRequest updateRequest) {
-        if (prospectoService.updateStatus(id_prospecto, updateRequest.getEstatus(), updateRequest.getObservaciones())) {
-            return new ResponseEntity(HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @ApiResponse(code = 200, message = "Actualizacion realizada correctamente")
+    public ResponseEntity<ProspectDomain> update( @RequestBody ProspectDomain prospectDomain) {
+        return new ResponseEntity<>(prospectoService.save(prospectDomain), HttpStatus.OK);
     }
 }
