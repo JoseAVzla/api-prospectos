@@ -35,13 +35,13 @@ public class ProspectoEntity {
 
     private String rfc;
 
-    private Estatus estatus;
+    private String estatus;
 
-    public Estatus getEstatus() {
+    public String getEstatus() {
         return estatus;
     }
 
-    public void setEstatus(Estatus estatus) {
+    public void setEstatus(String estatus) {
         this.estatus = estatus;
     }
 
@@ -49,7 +49,7 @@ public class ProspectoEntity {
         return idProspecto;
     }
 
-    public void setId(Integer idProspecto) {
+    public void setIdProspecto(Integer idProspecto) {
         this.idProspecto = idProspecto;
     }
 
@@ -123,9 +123,5 @@ public class ProspectoEntity {
 
     public void setRfc(String rfc) {
         this.rfc = rfc;
-    }
-
-    private enum Estatus {
-        ENVIADO, AUTORIZADO, RECHAZADO
     }
 }

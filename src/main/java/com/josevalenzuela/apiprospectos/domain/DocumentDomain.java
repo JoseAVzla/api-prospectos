@@ -1,5 +1,6 @@
 package com.josevalenzuela.apiprospectos.domain;
 
+
 public class DocumentDomain {
     private int idDoc;
     private int idProspect;
@@ -13,11 +14,11 @@ public class DocumentDomain {
         this.idDoc = idDoc;
     }
 
-    public int getIdProspecto() {
+    public int getIdProspect() {
         return idProspect;
     }
 
-    public void setIdProspecto(int idProspect) {
+    public void setIdProspect(int idProspect) {
         this.idProspect = idProspect;
     }
 

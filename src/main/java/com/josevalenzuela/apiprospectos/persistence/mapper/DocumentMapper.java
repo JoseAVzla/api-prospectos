@@ -11,11 +11,10 @@ import org.mapstruct.Mappings;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {ProspectMapper.class})
 public interface DocumentMapper {
-    @Mappings({
-            @Mapping(source = "idProspecto", target = "idProspect"),
-    })
+
+    @Mapping(source = "idProspecto", target = "idProspect")
     DocumentDomain toDocument(DocumentoEntity documentoEntity);
     List<DocumentDomain> toDocuments(List<DocumentoEntity> documentoEntities);
 

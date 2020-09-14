@@ -14,10 +14,10 @@ import java.util.Optional;
 public interface ProspectMapper {
     @Mappings({
             @Mapping(source = "idProspecto", target = "prospectoId"),
-            @Mapping(source = "calle", target = "dirCalle"),
-            @Mapping(source = "numero", target = "dirNumero"),
-            @Mapping(source = "colonia", target = "dirColonia"),
-            @Mapping(source = "codigoPostal", target = "dirCp"),
+            @Mapping( source = "dirCalle", target = "calle"),
+            @Mapping( source = "dirNumero", target = "numero"),
+            @Mapping( source = "dirColonia", target = "colonia"),
+            @Mapping( source = "dirCp", target = "codigoPostal"),
     })
     ProspectDomain toProspect(ProspectoEntity prospectoEntity);
     List<ProspectDomain> toProspects(List<ProspectoEntity> prospectoEntities);
