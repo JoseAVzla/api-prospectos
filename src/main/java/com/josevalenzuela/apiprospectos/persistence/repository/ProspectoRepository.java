@@ -29,8 +29,8 @@ public class ProspectoRepository implements ProspectDomainRepository {
     }
 
     @Override
-    public List<ProspectDomain> getAllProspectosByStatus(String estatus) {
-        return mapper.toProspects(crudRepository.findByEstatus(estatus));
+    public Optional<List<ProspectDomain>> getAllProspectosByStatus(String estatus) {
+        return Optional.of(mapper.toProspects(crudRepository.findByEstatus(estatus)));
     }
 
     @Override

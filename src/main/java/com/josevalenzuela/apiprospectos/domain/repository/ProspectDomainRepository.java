@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface ProspectDomainRepository {
     List<ProspectDomain> getAllProspectos();
     Optional<ProspectDomain> getProspect(int id);
-    List<ProspectDomain> getAllProspectosByStatus(String estatus);
+    Optional<List<ProspectDomain>> getAllProspectosByStatus(String estatus);
     ProspectDomain save(ProspectDomain prospecto);
     void updateStatusWithObservations(int idProspecto, String estatus, String obsverbaciones);
 

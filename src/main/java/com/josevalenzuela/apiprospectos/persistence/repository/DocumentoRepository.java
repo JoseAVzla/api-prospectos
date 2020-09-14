@@ -6,9 +6,12 @@ import com.josevalenzuela.apiprospectos.persistence.crud.DocumentoCrudRepository
 import com.josevalenzuela.apiprospectos.persistence.entity.DocumentoEntity;
 import com.josevalenzuela.apiprospectos.persistence.mapper.DocumentMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
+@Repository
 public class DocumentoRepository implements DocumentDomainRespository {
     @Autowired
     DocumentoCrudRepository docsCrudRepository;
@@ -21,8 +24,8 @@ public class DocumentoRepository implements DocumentDomainRespository {
     }
 
     @Override
-    public List<DocumentDomain> getAllDocsByID(int iD) {
-        return mapper.toDocuments(docsCrudRepository.findByIdProspecto(iD));
+    public Optional<List<DocumentDomain>> getAllDocsByProspectID(int iD) {
+        return Optional.of(mapper.toDocuments(docsCrudRepository.findByIdProspecto(iD)));
     }
 
     @Override

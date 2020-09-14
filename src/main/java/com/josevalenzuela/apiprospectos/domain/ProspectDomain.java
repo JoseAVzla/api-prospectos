@@ -16,6 +16,15 @@ public class ProspectDomain {
     private String telefono;
     private String rfc;
     private String estatus;
+    private String observaciones;
+
+    public String getObservaciones() {
+        return observaciones;
+    }
+
+    public void setObservaciones(String observaciones) {
+        this.observaciones = observaciones;
+    }
 
     public int getProspectoId() {
         return prospectoId;
