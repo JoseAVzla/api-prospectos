@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +23,6 @@ public class ProspectoController {
     private ProspectoService prospectoService;
     @Autowired
     private DocumentoService documentoService;
-
 
     @GetMapping(path = "/all")
     @ApiOperation("Obtiene todos los prospectos")
@@ -41,19 +39,21 @@ public class ProspectoController {
             }
 
 
-            ProspectoDTO prospectoDTO = new ProspectoDTO();
-            prospectoDTO.setNombre(prospectoDomain.getNombre());
-            prospectoDTO.setPrimerApellido(prospectoDomain.getPrimerApellido());
-            prospectoDTO.setSegundoApellido(prospectoDomain.getSegundoApellido());
-            prospectoDTO.setCalle(prospectoDomain.getCalle());
-            prospectoDTO.setColonia(prospectoDomain.getColonia());
-            prospectoDTO.setNumero(prospectoDomain.getNumero());
-            prospectoDTO.setTelefono(prospectoDomain.getTelefono());
-            prospectoDTO.setRfc(prospectoDomain.getRfc());
-            prospectoDTO.setEstatus(prospectoDomain.getEstatus());
-            prospectoDTO.setCodigoPostal(prospectoDomain.getCodigoPostal());
-            prospectoDTO.setDocumentosUrl(documentosUrl);
-            responseDTOList.add(prospectoDTO);
+            ProspectoDTO response = new ProspectoDTO();
+            response.setProspectoId(prospectoDomain.getProspectoId());
+            response.setNombre(prospectoDomain.getNombre());
+            response.setPrimerApellido(prospectoDomain.getPrimerApellido());
+            response.setSegundoApellido(prospectoDomain.getSegundoApellido());
+            response.setCalle(prospectoDomain.getCalle());
+            response.setColonia(prospectoDomain.getColonia());
+            response.setNumero(prospectoDomain.getNumero());
+            response.setTelefono(prospectoDomain.getTelefono());
+            response.setRfc(prospectoDomain.getRfc());
+            response.setEstatus(prospectoDomain.getEstatus());
+            response.setCodigoPostal(prospectoDomain.getCodigoPostal());
+            response.setObservaciones(prospectoDomain.getObservaciones());
+            response.setDocumentosUrl(documentosUrl);
+            responseDTOList.add(response);
         }
 
         return new ResponseEntity<>(responseDTOList, HttpStatus.OK);
@@ -87,6 +87,7 @@ public class ProspectoController {
     @ApiOperation("Guardar un nuevo prospecto")
     @ApiResponse(code = 201, message = "Prospecto guardado satisfactoriamente")
     public ResponseEntity<ProspectoDTO> save(@RequestBody ProspectoDTO prospectoDTORequest) {
+        //Mapeando los datos del request
         List<String> documentosUrlResponse =  new ArrayList<>();
         ProspectDomain prospectDomain = new ProspectDomain();
         prospectDomain.setNombre(prospectoDTORequest.getNombre());
@@ -101,6 +102,7 @@ public class ProspectoController {
         prospectDomain.setTelefono(prospectoDTORequest.getTelefono());
         ProspectDomain prospectoGuardado = prospectoService.save(prospectDomain);
 
+        //Guardando los urls de los documentos
         for (String url : prospectoDTORequest.getDocumentosUrl()) {
             DocumentDomain documentDomainAguardar = new DocumentDomain();
             documentDomainAguardar.setIdProspect(prospectoGuardado.getProspectoId());
@@ -109,8 +111,9 @@ public class ProspectoController {
             documentosUrlResponse.add(documentGuardado.getUrl());
         }
 
-
+        //Agregando los datos para el response..
         ProspectoDTO prospectoDTOResponse = new ProspectoDTO();
+        prospectoDTOResponse.setProspectoId(prospectoGuardado.getProspectoId());
         prospectoDTOResponse.setNombre(prospectoGuardado.getNombre());
         prospectoDTOResponse.setPrimerApellido(prospectoGuardado.getPrimerApellido());
         prospectoDTOResponse.setSegundoApellido(prospectoGuardado.getSegundoApellido());
@@ -125,10 +128,41 @@ public class ProspectoController {
         return new ResponseEntity<>(prospectoDTOResponse, HttpStatus.CREATED);
     }
 
-    @PutMapping(path = "/update/")
+    @PostMapping (path = "/update")
     @ApiOperation("Actualiza el estatus del prospecto y agrega las observaciones")
     @ApiResponse(code = 200, message = "Actualizacion realizada correctamente")
-    public ResponseEntity<ProspectDomain> update( @RequestBody ProspectDomain prospectDomain) {
-        return new ResponseEntity<>(prospectoService.save(prospectDomain), HttpStatus.OK);
+    public ResponseEntity<ProspectoDTO> update(@RequestBody ProspectoDTO prospectoRequestDTO) {
+
+        //Mapeando los datos del request
+        ProspectDomain prospectDomain = new ProspectDomain();
+        prospectDomain.setProspectoId(prospectoRequestDTO.getProspectoId());
+        prospectDomain.setNombre(prospectoRequestDTO.getNombre());
+        prospectDomain.setPrimerApellido(prospectoRequestDTO.getPrimerApellido());
+        prospectDomain.setSegundoApellido(prospectoRequestDTO.getSegundoApellido());
+        prospectDomain.setEstatus(prospectoRequestDTO.getEstatus());
+        prospectDomain.setCalle(prospectoRequestDTO.getCalle());
+        prospectDomain.setColonia(prospectoRequestDTO.getColonia());
+        prospectDomain.setCodigoPostal(prospectoRequestDTO.getCodigoPostal());
+        prospectDomain.setNumero(prospectoRequestDTO.getNumero());
+        prospectDomain.setRfc(prospectoRequestDTO.getRfc());
+        prospectDomain.setTelefono(prospectoRequestDTO.getTelefono());
+        prospectDomain.setObservaciones(prospectoRequestDTO.getObservaciones());
+        //Actualizar datos del prospecto guardando el objeto completo en el mismo registro con el mismo Id
+        ProspectDomain prospectoGuardado = prospectoService.save(prospectDomain);
+        //Agregando los datos para el response..
+        ProspectoDTO prospectoResponseDTO = new ProspectoDTO();
+        prospectoResponseDTO.setProspectoId(prospectoGuardado.getProspectoId());
+        prospectoResponseDTO.setNombre(prospectoGuardado.getNombre());
+        prospectoResponseDTO.setPrimerApellido(prospectoGuardado.getPrimerApellido());
+        prospectoResponseDTO.setSegundoApellido(prospectoGuardado.getSegundoApellido());
+        prospectoResponseDTO.setCalle(prospectoGuardado.getCalle());
+        prospectoResponseDTO.setColonia(prospectoGuardado.getColonia());
+        prospectoResponseDTO.setNumero(prospectoGuardado.getNumero());
+        prospectoResponseDTO.setTelefono(prospectoGuardado.getTelefono());
+        prospectoResponseDTO.setRfc(prospectoGuardado.getRfc());
+        prospectoResponseDTO.setEstatus(prospectoGuardado.getEstatus());
+        prospectoResponseDTO.setCodigoPostal(prospectoGuardado.getCodigoPostal());
+        prospectoResponseDTO.setDocumentosUrl(prospectoRequestDTO.getDocumentosUrl());
+        return new ResponseEntity<>(prospectoResponseDTO, HttpStatus.OK);
     }
 }
