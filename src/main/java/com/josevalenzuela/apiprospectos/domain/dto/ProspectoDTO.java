@@ -4,7 +4,7 @@ import com.josevalenzuela.apiprospectos.domain.DocumentDomain;
 
 import java.util.List;
 
-public class ProspectoResponseDTO {
+public class ProspectoDTO {
     private int prospectoId;
     private String nombre;
     private String primerApellido;
