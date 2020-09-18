@@ -16,9 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,7 +31,6 @@ public class ProspectoController {
     @Autowired
     private DocumentoService documentoService;
 
-
     @GetMapping(path = "/all")
     @ApiOperation("Obtiene todos los prospectos")
     @ApiResponse(code = 200, message = "OK")
@@ -41,15 +38,16 @@ public class ProspectoController {
         List<ProspectoResponseDTO> responseDTOList = new ArrayList<>();
         List<ProspectDomain> prospectosGuardados = prospectoService.getAllProspects();
 
-        for (ProspectDomain prospectoDomain: prospectosGuardados) {
+        for (ProspectDomain prospectoDomain : prospectosGuardados) {
             List<String> documentosUrl = new ArrayList<>();
             List<DocumentDomain> documentDomains = documentoService.getByProspectId(prospectoDomain.getProspectoId()).get();
-            for (DocumentDomain documentDomain:documentDomains) {
+            for (DocumentDomain documentDomain : documentDomains) {
                 documentosUrl.add(documentDomain.getUrl());
             }
 
 
             ProspectoResponseDTO prospectoResponseDTO = new ProspectoResponseDTO();
+            prospectoResponseDTO.setProspectoId(prospectoDomain.getProspectoId());
             prospectoResponseDTO.setNombre(prospectoDomain.getNombre());
             prospectoResponseDTO.setPrimerApellido(prospectoDomain.getPrimerApellido());
             prospectoResponseDTO.setSegundoApellido(prospectoDomain.getSegundoApellido());
@@ -95,8 +93,9 @@ public class ProspectoController {
     @ApiOperation("Guardar un nuevo prospecto")
     @ApiResponse(code = 201, message = "Prospecto guardado satisfactoriamente")
     public ResponseEntity<ProspectoResponseDTO> save(@RequestBody ProspectoRequestDTO prospectoRequest) {
-        String folder = "/Users/josevalenzuela/Desktop/docsFiles/";
-        List<String> documentosUrlResponse =  new ArrayList<>();
+
+        List<String> documentosUrlResponse = new ArrayList<>();
+        //Mapeando al prospecto domain del prospecto RequestDto
         ProspectDomain prospectDomain = new ProspectDomain();
         prospectDomain.setNombre(prospectoRequest.getNombre());
         prospectDomain.setPrimerApellido(prospectoRequest.getPrimerApellido());
@@ -109,28 +108,25 @@ public class ProspectoController {
         prospectDomain.setRfc(prospectoRequest.getRfc());
         prospectDomain.setTelefono(prospectoRequest.getTelefono());
         ProspectDomain prospectoGuardado = prospectoService.save(prospectDomain);
-
+        //Almacenando los documentos del prospecto
         int index = 0;
-        for (String encodedDoc: prospectoRequest.getDocumentosEncoded()) {
+        for (String encodedDoc : prospectoRequest.getDocumentosEncoded()) {
             byte[] data = Base64.decodeBase64(encodedDoc);
-            Path path = Paths.get(folder + prospectoGuardado.getProspectoId() + index);
+            String folder = "/Users/josevalenzuela/Desktop/ConCreditoApp/API-Prospectos/api-prospectos/src/main/resources/images/";
+            Path path = Paths.get(folder + prospectoGuardado.getProspectoId() + index+".png");
             try {
                 Files.write(path, data);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            /*try (OutputStream stream = new FileOutputStream(path)) {
-                stream.write(data);
-                DocumentDomain documentDomain = new DocumentDomain();
-                documentDomain.setIdProspect(prospectoGuardado.getProspectoId());
-                documentDomain.setUrl(path + prospectoGuardado.getProspectoId() + index);
-                documentosUrlResponse.add(documentoService.save(documentDomain).getUrl());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }*/
+            DocumentDomain documentDomainAguardar = new DocumentDomain();
+            documentDomainAguardar.setIdProspect(prospectoGuardado.getProspectoId());
+            documentDomainAguardar.setUrl(folder + prospectoGuardado.getProspectoId() + index+".png");
+            DocumentDomain documentGuardado = documentoService.save(documentDomainAguardar);
+            documentosUrlResponse.add(documentGuardado.getUrl());
             index++;
         }
+        //Agregando los datos del response
         ProspectoResponseDTO prospectoResponseDTO = new ProspectoResponseDTO();
         prospectoResponseDTO.setNombre(prospectoGuardado.getNombre());
         prospectoResponseDTO.setPrimerApellido(prospectoGuardado.getPrimerApellido());
@@ -146,10 +142,41 @@ public class ProspectoController {
         return new ResponseEntity<>(prospectoResponseDTO, HttpStatus.CREATED);
     }
 
-    @PutMapping(path = "/update/")
+    @PostMapping (path = "/update")
     @ApiOperation("Actualiza el estatus del prospecto y agrega las observaciones")
     @ApiResponse(code = 200, message = "Actualizacion realizada correctamente")
-    public ResponseEntity<ProspectDomain> update( @RequestBody ProspectDomain prospectDomain) {
-        return new ResponseEntity<>(prospectoService.save(prospectDomain), HttpStatus.OK);
+    public ResponseEntity<ProspectoResponseDTO> update(@RequestBody ProspectoRequestDTO prospectoRequestDTO) {
+
+        //Mapeando los datos del request
+        ProspectDomain prospectDomain = new ProspectDomain();
+        prospectDomain.setProspectoId(prospectoRequestDTO.getProspectoId());
+        prospectDomain.setNombre(prospectoRequestDTO.getNombre());
+        prospectDomain.setPrimerApellido(prospectoRequestDTO.getPrimerApellido());
+        prospectDomain.setSegundoApellido(prospectoRequestDTO.getSegundoApellido());
+        prospectDomain.setEstatus(prospectoRequestDTO.getEstatus());
+        prospectDomain.setCalle(prospectoRequestDTO.getCalle());
+        prospectDomain.setColonia(prospectoRequestDTO.getColonia());
+        prospectDomain.setCodigoPostal(prospectoRequestDTO.getCodigoPostal());
+        prospectDomain.setNumero(prospectoRequestDTO.getNumero());
+        prospectDomain.setRfc(prospectoRequestDTO.getRfc());
+        prospectDomain.setTelefono(prospectoRequestDTO.getTelefono());
+        prospectDomain.setObservaciones(prospectoRequestDTO.getObservaciones());
+        //Actualizar datos del prospecto guardando el objeto completo en el mismo registro mediante el mismo Id
+        ProspectDomain prospectoGuardado = prospectoService.save(prospectDomain);
+        //Agregando los datos para el response..
+        ProspectoResponseDTO prospectoResponseDTO = new ProspectoResponseDTO();
+        prospectoResponseDTO.setProspectoId(prospectoGuardado.getProspectoId());
+        prospectoResponseDTO.setNombre(prospectoGuardado.getNombre());
+        prospectoResponseDTO.setPrimerApellido(prospectoGuardado.getPrimerApellido());
+        prospectoResponseDTO.setSegundoApellido(prospectoGuardado.getSegundoApellido());
+        prospectoResponseDTO.setCalle(prospectoGuardado.getCalle());
+        prospectoResponseDTO.setColonia(prospectoGuardado.getColonia());
+        prospectoResponseDTO.setNumero(prospectoGuardado.getNumero());
+        prospectoResponseDTO.setTelefono(prospectoGuardado.getTelefono());
+        prospectoResponseDTO.setRfc(prospectoGuardado.getRfc());
+        prospectoResponseDTO.setEstatus(prospectoGuardado.getEstatus());
+        prospectoResponseDTO.setCodigoPostal(prospectoGuardado.getCodigoPostal());
+
+        return new ResponseEntity<>(prospectoResponseDTO, HttpStatus.OK);
     }
 }
